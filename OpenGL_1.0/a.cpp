@@ -47,7 +47,7 @@ int main()
 	glfwSetFramebufferSizeCallback(window, fragmentbufferSizeCallback);
 	//配置GLAD
 	//---------------------------------------
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) 
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		cout << "加载GLAD出现错误!!!" << endl;
 		return -1;
@@ -62,7 +62,7 @@ int main()
 	int success;
 	char info[512];
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success) 
+	if (!success)
 	{
 		glGetShaderInfoLog(vertexShader, 512, NULL, info);
 		cout << "编译顶点渲染器出现错误 --- " << info << endl;
@@ -98,7 +98,7 @@ int main()
 	// 释放渲染器
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-	
+
 	// 渲染图形
 	//---------------------------------------
 	const float vertices[] =
@@ -106,6 +106,19 @@ int main()
 		0.0f, 0.5f, 0.0f,
 		0.5, -0.5f, 0.0f,
 		-0.5f, -0.5f, 0.0f
+	};
+
+	const float vertices2[] =
+	{
+		-0.5,0.5f, 0.0f,
+		0.5f,0.5f,0.0f,
+		0.5,-0.5f,0.0f,
+		-0.5f,-0.5f,0.0f
+	};
+
+	const unsigned int indices[] =
+	{
+		0,1,2,0,2,3
 	};
 	// 创建并绑定顶点数组对象
 	unsigned int VAO;
@@ -116,18 +129,25 @@ int main()
 	unsigned int VBO;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
+
+	// 创建元素缓冲对象
+	unsigned int EBO;
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 	//设置步进
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	// 启用顶点缓冲对象
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// 绘制
 	//--------------------------------------------------
-	while (!glfwWindowShouldClose(window)) 
+	while (!glfwWindowShouldClose(window))
 	{
 		processInputEvent(window);
 		glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
@@ -135,7 +155,8 @@ int main()
 
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -153,15 +174,15 @@ int main()
 }
 
 // 渲染缓存变化回调
-void fragmentbufferSizeCallback(GLFWwindow* window, int width, int height) 
+void fragmentbufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
 
 // 按键事件统一处理
-void processInputEvent(GLFWwindow* window) 
+void processInputEvent(GLFWwindow* window)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) 
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
